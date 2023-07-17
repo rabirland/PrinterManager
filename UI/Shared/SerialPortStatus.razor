@@ -1,5 +1,7 @@
 ﻿@using PrinterManager.Communicators;
 
+@implements IDisposable
+
 @if (Communicator == null)
 {
     return;
@@ -26,6 +28,8 @@ else
 
 
 @code {
+    private bool running = false;
+
     [Inject]
     public SerialPortCommunicator? Communicator { get; set; }
 
@@ -33,5 +37,25 @@ else
     {
         get => Communicator?.PortName;
         set => Communicator?.Open(value ?? string.Empty);
+    }
+
+    public void Dispose()
+    {
+        running = false;
+    }
+
+    protected override void OnInitialized()
+    {
+        running = true;
+        RefreshTask().Monitor();
+    }
+
+    private async Task RefreshTask()
+    {
+        while (running)
+        {
+            this.StateHasChanged();
+            await Task.Delay(500);
+        }
     }
 }
