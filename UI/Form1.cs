@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components.WebView.WindowsForms;
 using Microsoft.Extensions.DependencyInjection;
 using PrinterManager;
 using PrinterManager.Communicators;
+using PrinterManager.Managers;
 
 namespace UI;
 
@@ -17,6 +18,9 @@ public partial class Form1 : Form
         services.RegisterAllScoped<IService>();
         services.AddSingleton<SerialPortCommunicator>();
         services.AddSingleton<ICommunicator>(x => x.GetRequiredService<SerialPortCommunicator>());
+
+        services.AddSingleton<Marlin1xxPrinterManager>();
+        services.AddSingleton<IPrinterManager>(x => x.GetRequiredService<Marlin1xxPrinterManager>());
 
         services.AddWindowsFormsBlazorWebView();
 #if DEBUG

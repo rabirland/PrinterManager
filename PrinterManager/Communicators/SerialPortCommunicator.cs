@@ -10,7 +10,11 @@ public class SerialPortCommunicator : ICommunicator, IDisposable
     private SerialPort port = new SerialPort();
     private Task? listenerTask;
 
+    /// <inheritdoc />
     public event Action<string>? OnMessage;
+
+    /// <inheritdoc />
+    public event Action? OnConnected;
 
     /// <inheritdoc />
     public bool IsOpen => port.IsOpen;
@@ -63,6 +67,8 @@ public class SerialPortCommunicator : ICommunicator, IDisposable
         port.BaudRate = 115200;
         port.Open();
         listenerTask = Listener();
+
+        OnConnected?.Invoke();
     }
 
     /// <summary>

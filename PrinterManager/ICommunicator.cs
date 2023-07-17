@@ -16,6 +16,11 @@ public interface ICommunicator
     event Action<string>? OnMessage;
 
     /// <summary>
+    /// Fired when a connection is established.
+    /// </summary>
+    event Action? OnConnected;
+
+    /// <summary>
     /// Sends a command to the printer.
     /// </summary>
     /// <param name="command">The command to send.</param>

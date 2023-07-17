@@ -1,0 +1,61 @@
+﻿@using PrinterManager;
+@using PrinterManager.Poco;
+
+@implements IDisposable
+
+<span>🌡Hotend: @HotendCurrent.ToString("0.00") / @HotendTarget.ToString("0.00")</span>
+<span>🌡Bed: @BedCurrent.ToString("0.00") / @BedTarget.ToString("0.00")</span>
+
+@code {
+    private float HotendCurrent = 0;
+    private float HotendTarget = 0;
+    private float BedCurrent = 0;
+    private float BedTarget = 0;
+
+    [Inject]
+    public IPrinterManager? PrinterManager { get; set; }
+
+    public void Dispose()
+    {
+        if (PrinterManager == null)
+        {
+            throw new Exception("No printer manager is provided");
+        }
+
+        PrinterManager.Messages -= OnMessage;
+        PrinterManager.Communicator.OnConnected -= TryStartMonitoringTemperatures;
+    }
+
+    protected override void OnInitialized()
+    {
+        if (PrinterManager == null)
+        {
+            throw new Exception("No printer manager is provided");
+        }
+
+        PrinterManager.Messages += OnMessage;
+        PrinterManager.Communicator.OnConnected += TryStartMonitoringTemperatures;
+
+        TryStartMonitoringTemperatures();
+    }
+
+    private void OnMessage(IPrinterResponse message)
+    {
+        if (message is TemperatureReport report)
+        {
+            HotendCurrent = report.HotendCurrent;
+            HotendTarget = report.HotendTarget;
+            BedCurrent = report.BedCurrent;
+            BedTarget = report.BedTarget;
+            StateHasChanged();
+        }
+    }
+
+    private void TryStartMonitoringTemperatures()
+    {
+        if (PrinterManager?.Communicator.IsOpen == true)
+        {
+            PrinterManager.MonitorTemperatures(1);
+        }
+    }
+}
