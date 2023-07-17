@@ -1,4 +1,7 @@
 ﻿using PrinterManager.Poco;
+using PrinterManager.Requests;
+using PrinterManager.Serializer;
+using PrinterManager.Templates;
 using System.Text.RegularExpressions;
 
 namespace PrinterManager.Managers;
@@ -27,16 +30,10 @@ public class Marlin1xxPrinterManager : IPrinterManager, IDisposable
         Dispose();
     }
 
-    /// <inheritdoc />
-    public void QueryTemperatures()
+    public void SendCommand<T>(T command) where T : IPrinterRequest
     {
-        communicator.Send(GCode.QueryTemperatures);
-    }
-
-    /// <inheritdoc />
-    public void MonitorTemperatures(int interval)
-    {
-        communicator.Send($"{GCode.MonitorTemperatures} S{interval}");
+        var gcode = GCodeSerializer.Serialize(command, Marlin1xxTemplate.Template);
+        communicator.Send(gcode);
     }
 
     public void Dispose()
@@ -50,19 +47,6 @@ public class Marlin1xxPrinterManager : IPrinterManager, IDisposable
         {
             Messages?.Invoke(tempReport);
         }
-    }
-
-    private static class GCode
-    {
-        /// <summary>
-        /// Instructs the printer to report the temperatures.
-        /// </summary>
-        public const string QueryTemperatures = "M105";
-
-        /// <summary>
-        /// Instructs the printer to continously report the temperatures.
-        /// </summary>
-        public const string MonitorTemperatures = "M155";
     }
 
     private static class Parser

@@ -1,4 +1,5 @@
 ﻿using PrinterManager.Poco;
+using PrinterManager.Requests;
 
 namespace PrinterManager;
 
@@ -18,13 +19,10 @@ public interface IPrinterManager
     event Action<IPrinterResponse>? Messages;
 
     /// <summary>
-    /// Ask the printer to report it's temperatures.
+    /// Sends a request/command to the printer.
     /// </summary>
-    void QueryTemperatures();
-
-    /// <summary>
-    /// Instruct the printer to report the temperature at every <paramref name="interval"/> seconds.
-    /// </summary>
-    /// <param name="interval">The seconds to wait between reports. Provide <c>0</c> to disable.</param>
-    void MonitorTemperatures(int interval);
+    /// <typeparam name="T">The type of request/command to send.</typeparam>
+    /// <param name="command">The request/command.</param>
+    void SendCommand<T>(T command)
+        where T : IPrinterRequest;
 }
