@@ -8,8 +8,15 @@
 .output {
     height: 100%;
     font-family: Consolas;
+    border: none;
+    resize: none;
+    outline: none;
+    overflow-y: auto;
 }
 
 .input {
     font-family: Consolas;
+    border: none;
+    outline: none;
+    border-top: 1px solid black;
 }

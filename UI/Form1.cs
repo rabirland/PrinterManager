@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components.WebView.WindowsForms;
 using Microsoft.Extensions.DependencyInjection;
+using PrinterManager;
 using PrinterManager.Communicators;
 
 namespace UI;
@@ -14,6 +15,7 @@ public partial class Form1 : Form
         var services = new ServiceCollection();
 
         services.RegisterAllScoped<IService>();
+        services.AddSingleton<ICommunicator, SerialPortCommunicator>();
         services.AddSingleton<SerialPortCommunicator>();
 
         services.AddWindowsFormsBlazorWebView();
