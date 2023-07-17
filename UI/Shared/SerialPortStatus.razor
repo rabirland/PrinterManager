@@ -1,0 +1,37 @@
+﻿@using PrinterManager.Communicators;
+
+@if (Communicator == null)
+{
+    return;
+}
+
+<span>Port:</span>
+<select @bind="Port">
+    <option></option>
+    @foreach (var port in SerialPortCommunicator.GetAvailablePorts())
+    {
+        <option>@port</option>
+    }
+</select>
+
+
+@if (Communicator.IsOpen)
+{
+    <span>✓</span>
+}
+else
+{
+    <span>✗</span>
+}
+
+
+@code {
+    [Inject]
+    public SerialPortCommunicator? Communicator { get; set; }
+
+    private string? Port
+    {
+        get => Communicator?.PortName;
+        set => Communicator?.Open(value ?? string.Empty);
+    }
+}

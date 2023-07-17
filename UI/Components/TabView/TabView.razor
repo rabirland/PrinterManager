@@ -1,0 +1,89 @@
+﻿@namespace UI.Components
+
+@inherits IgnoreUpdateComponentBase
+
+<CascadingValue Value="tabs">
+    @ChildContent
+</CascadingValue>
+
+<div class="tabview">
+    <div @ref="pagersContainer" class="pagers">
+        @for (int i = 0; i < tabs.Count; i++)
+        {
+            var index = i;
+            var tab = tabs[index];
+
+            <div class="pager" @onclick="() => SelectTab(index)">
+                @tab.PagerContent
+            </div>
+        }
+    </div>
+
+    <div @ref="pagesContainer" class="pages">
+        @for (int i = 0; i < tabs.Count; i++)
+        {
+            var tab = tabs[i];
+
+            <div class="page">
+                @tab.ChildContent
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private ChildContainer<TabViewTab> tabs;
+    private int currentTabIndex = -1;
+    private ElementReference pagersContainer;
+    private ElementReference pagesContainer;
+
+    public TabView()
+    {
+        tabs = new(OnTabAdded, OnTabRemoved);
+    }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Inject]
+    public IJsService JsService { get; set; }
+
+    private void OnTabAdded(TabViewTab tab)
+    {
+        if (tabs.Count > 0 && currentTabIndex < 0)
+        {
+            SelectTab(0).Monitor();
+        }
+        this.StateHasChanged();
+    }
+
+    private void OnTabRemoved(TabViewTab tab)
+    {
+        if (currentTabIndex >= tabs.Count)
+        {
+            SelectTab(tabs.Count - 1).Monitor();
+        }
+        else
+        {
+            SelectTab(currentTabIndex).Monitor();
+        }
+
+        this.StateHasChanged();
+    }
+
+    private async Task SelectTab(int index)
+    {
+        // Remove active classes from the current elements
+        if (currentTabIndex >= 0)
+        {
+            await JsService.Execute("p1.childNodes.item(p2).classList.remove('active');", pagersContainer, currentTabIndex);
+            await JsService.Execute("p1.childNodes.item(p2).classList.remove('active');", pagesContainer, currentTabIndex);
+        }
+
+        // Add active classes to the selected elements
+        await JsService.Execute("p1.childNodes.item(p2).classList.add('active');", pagersContainer, index);
+        await JsService.Execute("p1.childNodes.item(p2).classList.add('active');", pagesContainer, index);
+
+        currentTabIndex = index;
+    }
+}

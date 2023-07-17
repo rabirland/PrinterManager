@@ -1,0 +1,48 @@
+@import '../params.scss';
+
+.tabview {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+
+    .pagers {
+        display: block;
+
+        .pager {
+            display: inline-block;
+            border: $border-width solid $border-color;
+            border-radius: $border-radius $border-radius 0 0;
+            border-bottom: 0;
+            position: relative;
+            z-index: 1;
+            margin: 0 0 -1px -1px;
+            padding: $spacing;
+            background-color: $color-bg;
+            cursor: pointer;
+
+            &.active {
+                background-color: $color-active;
+                color: $color-bg;
+            }
+        }
+    }
+
+    .pages {
+        display: block;
+        height: 100%;
+        border-radius: 0 $border-radius $border-radius $border-radius;
+        border: $border-width solid $border-color;
+
+        .page {
+            display: none;
+            width: 100%;
+            height: 100%;
+            background-color: $color-bg;
+
+            &.active {
+                display: block;
+            }
+        }
+    }
+}
