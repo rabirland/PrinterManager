@@ -12,6 +12,7 @@
     resize: none;
     outline: none;
     overflow-y: auto;
+    overflow-x: auto;
 }
 
 .input {
@@ -19,4 +20,8 @@
     border: none;
     outline: none;
     border-top: 1px solid black;
+}
+
+.log {
+    white-space: nowrap;
 }

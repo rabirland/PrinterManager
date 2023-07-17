@@ -8,11 +8,11 @@
 }
 
 <span>Port:</span>
-<select @bind="Port">
+<select @onchange="OpenPort">
     <option></option>
     @foreach (var port in SerialPortCommunicator.GetAvailablePorts())
     {
-        <option>@port</option>
+        <option selected="@(Communicator?.PortName == port)">@port</option>
     }
 </select>
 
@@ -33,12 +33,6 @@ else
     [Inject]
     public SerialPortCommunicator? Communicator { get; set; }
 
-    private string? Port
-    {
-        get => Communicator?.PortName;
-        set => Communicator?.Open(value ?? string.Empty);
-    }
-
     public void Dispose()
     {
         running = false;
@@ -56,6 +50,16 @@ else
         {
             this.StateHasChanged();
             await Task.Delay(500);
+        }
+    }
+
+    private void OpenPort(ChangeEventArgs args)
+    {
+        var portName = (string?)args.Value;
+
+        if (string.IsNullOrEmpty(portName) == false)
+        {
+            Communicator?.Open(portName ?? string.Empty);
         }
     }
 }

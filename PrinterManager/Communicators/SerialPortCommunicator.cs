@@ -9,13 +9,15 @@ public class SerialPortCommunicator : ICommunicator, IDisposable
 {
     private SerialPort port = new SerialPort();
     private Task? listenerTask;
-    private bool listen = false;
 
     public event Action<string>? OnMessage;
 
     /// <inheritdoc />
     public bool IsOpen => port.IsOpen;
 
+    /// <summary>
+    /// The name of the current port.
+    /// </summary>
     public string PortName => port.PortName;
 
     /// <summary>
@@ -35,7 +37,8 @@ public class SerialPortCommunicator : ICommunicator, IDisposable
             throw new Exception("Port not opened");
         }
 
-        port.WriteLine(command);
+        //port.WriteLine(command);
+        port.Write($"{command}\r\n");
     }
 
     /// <summary>
@@ -54,13 +57,11 @@ public class SerialPortCommunicator : ICommunicator, IDisposable
             Close();
         }
 
-        port.ReadTimeout = 1000;
-        port.WriteTimeout = 1000;
+        port.ReadTimeout = -1;
+        port.WriteTimeout = -1;
         port.PortName = portName;
         port.BaudRate = 115200;
         port.Open();
-
-        listen = true;
         listenerTask = Listener();
     }
 
@@ -69,7 +70,6 @@ public class SerialPortCommunicator : ICommunicator, IDisposable
     /// </summary>
     public void Close()
     {
-        listen = false;
         port.Close();
         listenerTask = null;
     }
@@ -84,11 +84,16 @@ public class SerialPortCommunicator : ICommunicator, IDisposable
 
     private async Task Listener()
     {
-        while (listen)
+        while (port.IsOpen)
         {
-            var line = port.ReadLine();
-            OnMessage?.Invoke(line);
-            await Task.Delay(100);
+            try
+            {
+                var line = await Task.Run(port.ReadLine);
+                OnMessage?.Invoke(line);
+            }
+            catch (Exception e)
+            {
+            }
         }
     }
 }

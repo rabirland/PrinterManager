@@ -7,7 +7,7 @@
     <div class="output">
         @foreach (var msg in outputBuffer)
         {
-            <div>@msg</div>
+            <div class="log">@msg</div>
         }
     </div>
     
@@ -41,7 +41,8 @@
 
     private void MessageReceived(string message)
     {
-        AddMessage(message);
+        AddMessage($"[IN] {message}");
+        StateHasChanged();
     }
 
     private void OnInputKeypress(KeyboardEventArgs args)

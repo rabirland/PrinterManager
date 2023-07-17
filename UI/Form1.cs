@@ -15,8 +15,8 @@ public partial class Form1 : Form
         var services = new ServiceCollection();
 
         services.RegisterAllScoped<IService>();
-        services.AddSingleton<ICommunicator, SerialPortCommunicator>();
         services.AddSingleton<SerialPortCommunicator>();
+        services.AddSingleton<ICommunicator>(x => x.GetRequiredService<SerialPortCommunicator>());
 
         services.AddWindowsFormsBlazorWebView();
 #if DEBUG
