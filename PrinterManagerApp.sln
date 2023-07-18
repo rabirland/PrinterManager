@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrinterManager", "PrinterMa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UI", "UI\UI.csproj", "{A3618033-35EF-4BAA-9510-6EBB55CDFA8F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrinterManager.Test", "PrinterManager.Test\PrinterManager.Test.csproj", "{AD946FF0-D2B0-4FF1-BF54-10EE5D3604BF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{A3618033-35EF-4BAA-9510-6EBB55CDFA8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A3618033-35EF-4BAA-9510-6EBB55CDFA8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A3618033-35EF-4BAA-9510-6EBB55CDFA8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD946FF0-D2B0-4FF1-BF54-10EE5D3604BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD946FF0-D2B0-4FF1-BF54-10EE5D3604BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD946FF0-D2B0-4FF1-BF54-10EE5D3604BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD946FF0-D2B0-4FF1-BF54-10EE5D3604BF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

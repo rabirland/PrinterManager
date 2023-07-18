@@ -1,7 +1,7 @@
 ﻿using PrinterManager.Poco;
 using PrinterManager.Requests;
 using PrinterManager.Serializer;
-using PrinterManager.Templates;
+using PrinterManager.GCodeTemplates;
 using System.Text.RegularExpressions;
 
 namespace PrinterManager.Managers;
