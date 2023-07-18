@@ -1,5 +1,5 @@
-﻿using PrinterManager.Poco;
-using PrinterManager.Requests;
+﻿using PrinterManager.Requests;
+using PrinterManager.Responses;
 
 namespace PrinterManager;
 
@@ -16,7 +16,7 @@ public interface IPrinterManager
     /// <summary>
     /// Fired when a message is received from the printer.
     /// </summary>
-    event Action<IPrinterResponse>? Messages;
+    event Action<IPrinterResponse>? OnMessage;
 
     /// <summary>
     /// Sends a request/command to the printer.

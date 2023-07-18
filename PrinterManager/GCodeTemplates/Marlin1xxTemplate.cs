@@ -1,11 +1,12 @@
 ﻿using PrinterManager.Requests;
-using PrinterManager.Serializer;
+using PrinterManager.Responses;
+using PrinterManager.Serialization;
 
 namespace PrinterManager.GCodeTemplates;
 
 public static class Marlin1xxTemplate
 {
-    public readonly static GCodeCommandTemplate[] Template = new GCodeTemplateBuilder()
+    public readonly static GCodeCommandTemplate[] CommandTemplate = new GCodeTemplateBuilder()
         .AddCommand<Temperature>("M105")
             .WithParameter(c => c.IncludeRedundantSensor, "R")
             .WithParameter(c => c.HotendIndex, "T")
@@ -21,4 +22,9 @@ public static class Marlin1xxTemplate
             .WithParameter(c => c.Verbose, "V")
             .WithParameter(c => c.ZFadeHeight, "Z")
         .Build();
+
+    public readonly static GCodeResponseTemplate[] ResponseTemplates = new[]
+    {
+        GCodeResponseTemplate.Create<TemperatureStateResponse>("T:(?<HotendCurrent>\\d+(.\\d*)?)\\s*/(?<HotendTarget>\\d+(.\\d*)?)\\s*B:(?<BedCurrent>\\d+(.\\d*)?)\\s*/(?<BedTarget>\\d+(.\\d*)?)"),
+    };
 }

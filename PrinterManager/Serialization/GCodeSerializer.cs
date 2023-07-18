@@ -1,7 +1,7 @@
 ﻿using PrinterManager.Requests;
 using System.Reflection;
 
-namespace PrinterManager.Serializer;
+namespace PrinterManager.Serialization;
 
 /// <summary>
 /// Serializeds requests to GCode commands.

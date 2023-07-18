@@ -1,4 +1,5 @@
 ﻿using System.IO.Ports;
+using System.Text;
 
 namespace PrinterManager.Communicators;
 
@@ -92,10 +93,20 @@ public class SerialPortCommunicator : ICommunicator, IDisposable
     {
         while (port.IsOpen)
         {
+            StringBuilder buffer = new StringBuilder();
             try
             {
                 var line = await Task.Run(port.ReadLine);
-                OnMessage?.Invoke(line);
+                if (line.StartsWith("ok"))
+                {
+                    buffer.Append(line);
+                    OnMessage?.Invoke(buffer.ToString());
+                    buffer.Clear();
+                }
+                else
+                {
+                    buffer.AppendLine(line);
+                }
             }
             catch (Exception e)
             {

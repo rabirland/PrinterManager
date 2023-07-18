@@ -1,5 +1,5 @@
 ﻿using PrinterManager.Requests;
-using PrinterManager.Serializer;
+using PrinterManager.Serialization;
 
 namespace PrinterManager.Test.Serializer;
 

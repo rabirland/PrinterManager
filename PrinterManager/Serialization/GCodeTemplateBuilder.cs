@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace PrinterManager.Serializer;
+namespace PrinterManager.Serialization;
 
 /// <summary>
 /// Creates GCode templates in fluent style

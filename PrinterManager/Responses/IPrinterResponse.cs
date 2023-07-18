@@ -1,4 +1,4 @@
-﻿namespace PrinterManager.Poco;
+﻿namespace PrinterManager.Responses;
 
 public interface IPrinterResponse
 {

@@ -1,8 +1,7 @@
-﻿using PrinterManager.Poco;
-using PrinterManager.Requests;
-using PrinterManager.Serializer;
+﻿using PrinterManager.Requests;
+using PrinterManager.Serialization;
 using PrinterManager.GCodeTemplates;
-using System.Text.RegularExpressions;
+using PrinterManager.Responses;
 
 namespace PrinterManager.Managers;
 
@@ -17,12 +16,12 @@ public class Marlin1xxPrinterManager : IPrinterManager, IDisposable
     public ICommunicator Communicator => communicator;
 
     /// <inheritdoc />
-    public event Action<IPrinterResponse>? Messages;
+    public event Action<IPrinterResponse>? OnMessage;
 
     public Marlin1xxPrinterManager(ICommunicator communicator)
     {
         this.communicator = communicator;
-        this.communicator.OnMessage += OnMessage;
+        this.communicator.OnMessage += OnMessageReceived;
     }
 
     ~Marlin1xxPrinterManager()
@@ -32,46 +31,22 @@ public class Marlin1xxPrinterManager : IPrinterManager, IDisposable
 
     public void SendCommand<T>(T command) where T : IPrinterRequest
     {
-        var gcode = GCodeSerializer.Serialize(command, Marlin1xxTemplate.Template);
+        var gcode = GCodeSerializer.Serialize(command, Marlin1xxTemplate.CommandTemplate);
         communicator.Send(gcode);
     }
 
     public void Dispose()
     {
-        this.communicator.OnMessage -= OnMessage;
+        this.communicator.OnMessage -= OnMessageReceived;
     }
 
-    private void OnMessage(string message)
+    private void OnMessageReceived(string message)
     {
-        if (Parser.TryParseTemperatureReport(message, out var tempReport))
+        var response = GCodeParser.Parse(message, Marlin1xxTemplate.ResponseTemplates);
+
+        if (response != null)
         {
-            Messages?.Invoke(tempReport);
-        }
-    }
-
-    private static class Parser
-    {
-        private static readonly Regex TemperatureReportParser = new Regex("T:(?<HotendCurrent>\\d+(.\\d*)?)\\s*/(?<HotendTarget>\\d+(.\\d*)?)\\s*B:(?<BedCurrent>\\d+(.\\d*)?)\\s*/(?<BedTarget>\\d+(.\\d*)?)", RegexOptions.Compiled);
-
-        public static bool TryParseTemperatureReport(string message, out TemperatureReport result)
-        {
-            var tempReport = TemperatureReportParser.Match(message);
-
-            if (tempReport.Success)
-            {
-                float hotendCurrent = float.Parse(tempReport.Groups["HotendCurrent"].Value);
-                float hotendTarget = float.Parse(tempReport.Groups["HotendTarget"].Value);
-                float bedCurrent = float.Parse(tempReport.Groups["BedCurrent"].Value);
-                float bedTarget = float.Parse(tempReport.Groups["BedTarget"].Value);
-
-                result = new TemperatureReport(hotendCurrent, hotendTarget, bedCurrent, bedTarget);
-                return true;
-            }
-            else
-            {
-                result = default;
-                return false;
-            }
+            OnMessage?.Invoke(response);
         }
     }
 }

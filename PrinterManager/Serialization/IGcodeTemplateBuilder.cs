@@ -1,7 +1,7 @@
 ﻿using PrinterManager.Requests;
 using System.Linq.Expressions;
 
-namespace PrinterManager.Serializer;
+namespace PrinterManager.Serialization;
 
 public interface IGcodeTemplateBuilder
 {

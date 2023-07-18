@@ -1,6 +1,6 @@
 ﻿@using PrinterManager;
-@using PrinterManager.Poco;
 @using PrinterManager.Requests;
+@using PrinterManager.Responses;
 
 @implements IDisposable
 
@@ -23,7 +23,7 @@
             throw new Exception("No printer manager is provided");
         }
 
-        PrinterManager.Messages -= OnMessage;
+        PrinterManager.OnMessage -= OnMessage;
         PrinterManager.Communicator.OnConnected -= TryStartMonitoringTemperatures;
     }
 
@@ -34,7 +34,7 @@
             throw new Exception("No printer manager is provided");
         }
 
-        PrinterManager.Messages += OnMessage;
+        PrinterManager.OnMessage += OnMessage;
         PrinterManager.Communicator.OnConnected += TryStartMonitoringTemperatures;
 
         TryStartMonitoringTemperatures();
@@ -42,7 +42,7 @@
 
     private void OnMessage(IPrinterResponse message)
     {
-        if (message is TemperatureReport report)
+        if (message is TemperatureStateResponse report)
         {
             HotendCurrent = report.HotendCurrent;
             HotendTarget = report.HotendTarget;

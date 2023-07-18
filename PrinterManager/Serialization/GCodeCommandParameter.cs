@@ -1,4 +1,4 @@
-﻿namespace PrinterManager.Serializer;
+﻿namespace PrinterManager.Serialization;
 
 /// <summary>
 /// A single parameter for the GCode template.
