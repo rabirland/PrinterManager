@@ -1,5 +1,6 @@
 ﻿@using PrinterManager;
 @using PrinterManager.Poco;
+@using PrinterManager.Requests;
 
 @implements IDisposable
 
@@ -55,7 +56,7 @@
     {
         if (PrinterManager?.Communicator.IsOpen == true)
         {
-            PrinterManager.MonitorTemperatures(1);
+            PrinterManager.SendCommand(new AutoReportTemperatures(1));
         }
     }
 }

@@ -11,7 +11,7 @@ public class GCodeTemplateBuilder : IGcodeTemplateBuilder
 {
     private List<GCodeCommandTemplate> commands = new List<GCodeCommandTemplate>();
 
-    public GCodeTemplateCommandBuilder<T> AddType<T>(string code)
+    public GCodeTemplateCommandBuilder<T> AddCommand<T>(string code)
         where T : IPrinterRequest
     {
         return new GCodeTemplateCommandBuilder<T>(this, code);
@@ -42,7 +42,7 @@ public class GCodeTemplateCommandBuilder<T> : IGCodeCommandBuilder<T>
         this.code = code;
     }
 
-    public GCodeTemplateParameterBuilder<T> WithParameter<TProp>(Expression<Func<T, TProp>> propertySelector, string prefix)
+    public GCodeTemplateCommandBuilder<T> WithParameter<TProp>(Expression<Func<T, TProp>> propertySelector, string prefix)
     {
         if (propertySelector is LambdaExpression l)
         {
@@ -50,7 +50,9 @@ public class GCodeTemplateCommandBuilder<T> : IGCodeCommandBuilder<T>
             {
                 if (m.Member is PropertyInfo p)
                 {
-                    return new GCodeTemplateParameterBuilder<T>(this, p, prefix);
+                    var param = new GCodeCommandParameter(p.Name, prefix);
+                    this.currentParameters.Add(param);
+                    return this;
                 }
                 else
                 {
@@ -68,86 +70,21 @@ public class GCodeTemplateCommandBuilder<T> : IGCodeCommandBuilder<T>
         }
     }
 
-    public GCodeTemplateCommandBuilder<T1> AddType<T1>(string code)
+    public GCodeTemplateCommandBuilder<T1> AddCommand<T1>(string code)
         where T1 : IPrinterRequest
     {
         Finish();
-        return parentBuilder.AddType<T1>(code);
+        return parentBuilder.AddCommand<T1>(code);
     }
 
     public GCodeCommandTemplate[] Build()
     {
         Finish();
         return parentBuilder.Build();
-    }
-
-    internal void FinishParameter(GCodeCommandParameter parameter)
-    {
-        currentParameters.Add(parameter);
     }
 
     private void Finish()
     {
         parentBuilder.FinishCommand(new GCodeCommandTemplate(typeof(T), code, currentParameters.ToArray()));
-    }
-}
-
-public class GCodeTemplateParameterBuilder<T> : IGCodeParameterBuilder<T>
-    where T : IPrinterRequest
-{
-    private readonly GCodeTemplateCommandBuilder<T> parentBuilder;
-    private readonly PropertyInfo property;
-    private readonly string prefix;
-
-    private List<GCodeCommandParameter> currentParameters = new List<GCodeCommandParameter>();
-    private bool currentParameterForceInclude = false;
-    private bool currentParameterFlag = false;
-
-    internal GCodeTemplateParameterBuilder(GCodeTemplateCommandBuilder<T> parentBuilder, PropertyInfo property, string prefix)
-    {
-        this.parentBuilder = parentBuilder;
-        this.property = property;
-        this.prefix = prefix;
-    }
-
-    public GCodeTemplateParameterBuilder<T> ForceInclude()
-    {
-        this.currentParameterForceInclude = true;
-        return this;
-    }
-
-    public GCodeTemplateParameterBuilder<T> Flag()
-    {
-        if (property.PropertyType != typeof(bool))
-        {
-            throw new Exception("Can not mark parameter as flag if the property type is not bool");
-        }
-
-        currentParameterFlag = true;
-        return this;
-    }
-
-    public GCodeTemplateParameterBuilder<T> WithParameter<TProp>(Expression<Func<T, TProp>> propertySelector, string prefix)
-    {
-        Finish();
-        return parentBuilder.WithParameter(propertySelector, prefix);
-    }
-
-    public GCodeTemplateCommandBuilder<T1> AddType<T1>(string code)
-        where T1 : IPrinterRequest
-    {
-        Finish();
-        return parentBuilder.AddType<T1>(code);
-    }
-
-    public GCodeCommandTemplate[] Build()
-    {
-        Finish();
-        return parentBuilder.Build();
-    }
-
-    private void Finish()
-    {
-        this.parentBuilder.FinishParameter(new GCodeCommandParameter(property.Name, prefix, currentParameterForceInclude, currentParameterFlag));
     }
 }

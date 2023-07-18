@@ -10,7 +10,7 @@ public class GCodeTemplateBuilderTests
     public void ShouldBuildSimpleTemplate()
     {
         var builder = new GCodeTemplateBuilder();
-        var template = builder.AddType<Command1>("M1").Build();
+        var template = builder.AddCommand<Command1>("M1").Build();
 
         template.Should().HaveCount(1);
         template[0].RequestType.Should().Be(typeof(Command1));
@@ -24,7 +24,7 @@ public class GCodeTemplateBuilderTests
     {
         var builder = new GCodeTemplateBuilder();
         var template = builder
-            .AddType<Command2>("M1")
+            .AddCommand<Command2>("M1")
                 .WithParameter(c => c.Param, "P")
             .Build();
 
@@ -42,10 +42,8 @@ public class GCodeTemplateBuilderTests
     {
         var builder = new GCodeTemplateBuilder();
         var template = builder
-            .AddType<Command3>("M1")
+            .AddCommand<Command3>("M1")
                 .WithParameter(c => c.Param2, "P")
-                .ForceInclude()
-                .Flag()
             .Build();
 
         template.Should().HaveCount(1);
@@ -55,8 +53,6 @@ public class GCodeTemplateBuilderTests
         template[0].Parameters.Should().HaveCount(1);
         template[0].Parameters[0].Name.Should().Be(nameof(Command3.Param2));
         template[0].Parameters[0].Prefix.Should().Be("P");
-        template[0].Parameters[0].ForceInclude.Should().Be(true);
-        template[0].Parameters[0].Flag.Should().Be(true);
     }
 
     [TestMethod]
@@ -64,9 +60,8 @@ public class GCodeTemplateBuilderTests
     {
         var builder = new GCodeTemplateBuilder();
         var action = () => builder
-            .AddType<Command2>("M1")
+            .AddCommand<Command2>("M1")
                 .WithParameter(c => c.Param, "P")
-                .Flag()
             .Build();
 
         action.Should().Throw<Exception>();
@@ -77,10 +72,8 @@ public class GCodeTemplateBuilderTests
     {
         var builder = new GCodeTemplateBuilder();
         var template = builder
-            .AddType<Command4>("M1")
+            .AddCommand<Command4>("M1")
                 .WithParameter(c => c.Param2, "C")
-                    .ForceInclude()
-                    .Flag()
                 .WithParameter(c => c.Param, "P")
             .Build();
 
@@ -91,8 +84,6 @@ public class GCodeTemplateBuilderTests
         template[0].Parameters.Should().HaveCount(2);
         template[0].Parameters[0].Name.Should().Be(nameof(Command4.Param2));
         template[0].Parameters[0].Prefix.Should().Be("C");
-        template[0].Parameters[0].ForceInclude.Should().Be(true);
-        template[0].Parameters[0].Flag.Should().Be(true);
 
         template[0].Parameters[1].Name.Should().Be(nameof(Command4.Param));
         template[0].Parameters[1].Prefix.Should().Be("P");
@@ -103,14 +94,12 @@ public class GCodeTemplateBuilderTests
     {
         var builder = new GCodeTemplateBuilder();
         var template = builder
-            .AddType<Command4>("M1")
+            .AddCommand<Command4>("M1")
                 .WithParameter(c => c.Param2, "C")
-                    .ForceInclude()
-                    .Flag()
                 .WithParameter(c => c.Param, "P")
-            .AddType<Command2>("M2")
+            .AddCommand<Command2>("M2")
                 .WithParameter(c => c.Param, "G")
-            .AddType<Command1>("M3")
+            .AddCommand<Command1>("M3")
             .Build();
 
         template.Should().HaveCount(3);
@@ -120,8 +109,6 @@ public class GCodeTemplateBuilderTests
         template[0].Parameters.Should().HaveCount(2);
         template[0].Parameters[0].Name.Should().Be(nameof(Command4.Param2));
         template[0].Parameters[0].Prefix.Should().Be("C");
-        template[0].Parameters[0].ForceInclude.Should().Be(true);
-        template[0].Parameters[0].Flag.Should().Be(true);
 
         template[0].Parameters[1].Name.Should().Be(nameof(Command4.Param));
         template[0].Parameters[1].Prefix.Should().Be("P");

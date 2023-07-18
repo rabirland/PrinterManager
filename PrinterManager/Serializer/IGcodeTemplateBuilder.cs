@@ -5,7 +5,7 @@ namespace PrinterManager.Serializer;
 
 public interface IGcodeTemplateBuilder
 {
-    GCodeTemplateCommandBuilder<T> AddType<T>(string code)
+    GCodeTemplateCommandBuilder<T> AddCommand<T>(string code)
         where T : IPrinterRequest;
     GCodeCommandTemplate[] Build();
 }
@@ -13,12 +13,4 @@ public interface IGcodeTemplateBuilder
 public interface IGCodeCommandBuilder<T> : IGcodeTemplateBuilder
     where T : IPrinterRequest
 {
-    GCodeTemplateParameterBuilder<T> WithParameter<TProp>(Expression<Func<T, TProp>> propertySelector, string prefix);
-}
-
-public interface IGCodeParameterBuilder<T> : IGCodeCommandBuilder<T>
-    where T : IPrinterRequest
-{
-    GCodeTemplateParameterBuilder<T> ForceInclude();
-    GCodeTemplateParameterBuilder<T> Flag();
 }
