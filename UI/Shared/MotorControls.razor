@@ -1,0 +1,26 @@
+﻿@using PrinterManager;
+
+<table class="maintable">
+    <tr>
+        <td></td>
+        <td>▲</td>
+        <td></td>
+    </tr>
+
+    <tr>
+        <td>◀</td>
+        <td></td>
+        <td>▶</td>
+    </tr>
+
+    <tr>
+        <td></td>
+        <td>▼</td>
+        <td></td>
+    </tr>
+</table>
+
+@code {
+    [Inject]
+    public required IPrinterManager PrinterManager { get; set; }
+}

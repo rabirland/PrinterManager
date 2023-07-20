@@ -1,0 +1,43 @@
+﻿<div>
+    <span>Expected wall thickness:</span>
+    <input type="number" class="input" @bind-value="expectedWallThickness" />
+</div>
+
+<div>Measured wall thicknesses:</div>
+
+@for (int i = 0; i < measurements.Count; i++)
+{
+    var index = i;
+    <div>
+        <input type="number" class="input" @bind-value="measurements[index]" />
+        <span>mm</span>
+        @if (i >= 4)
+        {
+            <span class="btn" @onclick="() => measurements.RemoveAt(index)">-</span>
+        }
+    </div>
+}
+
+<div>
+    <span class="btn" @onclick="() => measurements.Add(0)">+</span>
+</div>
+
+<div>
+    <span>Current Flow Rate:</span>
+    <input type="number" class="input" @bind-value="currentFlowRate" />
+</div>
+
+<div>
+    New flow rate: <input readonly type="number" class="input" value="@FlowRate" /> %
+</div>
+
+@code {
+    private List<float> measurements = new List<float>()
+    {
+        0, 0, 0, 0,
+    };
+    private float expectedWallThickness = 0.8f;
+    private float currentFlowRate = 100;
+
+    private float FlowRate => currentFlowRate * (expectedWallThickness / measurements.Average());
+}
