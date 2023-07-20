@@ -7,6 +7,38 @@ namespace PrinterManager.GCodeTemplates;
 public static class Marlin1xxTemplate
 {
     public readonly static GCodeCommandTemplate[] CommandTemplate = new GCodeTemplateBuilder()
+        .AddCommand<RapidLinearMovement>("G0")
+            .WithParameter(c => c.TargetExtruderPosition, "E")
+            .WithParameter(c => c.FeedRate, "F")
+            .WithParameter(c => c.LaserPower, "S")
+            .WithParameter(c => c.TargetXPos, "X")
+            .WithParameter(c => c.TargetYPos, "Y")
+            .WithParameter(c => c.TargetZPos, "Z")
+
+        .AddCommand<RapidMovement>("G1")
+            .WithParameter(c => c.TargetExtruderPosition, "E")
+            .WithParameter(c => c.FeedRate, "F")
+            .WithParameter(c => c.LaserPower, "S")
+            .WithParameter(c => c.TargetXPos, "X")
+            .WithParameter(c => c.TargetYPos, "Y")
+            .WithParameter(c => c.TargetZPos, "Z")
+
+        .AddCommand<SetUnitsToInches>("G20")
+
+        .AddCommand<AutoHome>("G28")
+            .WithParameter(c => c.RestoreLevelingStateAfter, "L")
+            .WithParameter(c => c.SkipTrusedAxes, "O")
+            .WithParameter(c => c.RaiseNozzleDistanceBefore, "R")
+            .WithParameter(c => c.HomeXAxis, "X")
+            .WithParameter(c => c.HomeYAxis, "Y")
+            .WithParameter(c => c.HomeZAxis, "Z")
+
+        .AddCommand<SetExtruderAbsoluteMode>("M82")
+
+        .AddCommand<SetAbsoluteMode>("G90")
+
+        .AddCommand<SetRelativeMode>("G91")
+
         .AddCommand<SetAxisStepperStepsPerMm>("M92")
             .WithParameter(c => c.AxisX, "X")
             .WithParameter(c => c.AxisY, "Y")
