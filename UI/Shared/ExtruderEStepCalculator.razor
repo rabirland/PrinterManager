@@ -1,0 +1,47 @@
+﻿@using PrinterManager;
+<div>
+    <span>Expected feed:</span>
+    <input type="number" class="input" @bind-value="@expectedFlow" />
+    <span>mm</span>
+</div>
+
+<div>
+    <span>Actually fed:</span>
+    <input type="number" class="input" @bind-value="@actualFlow" />
+    <span>mm</span>
+</div>
+
+<div>
+    <span>Current E-Steps:</span>
+    <input type="number" class="input" @bind-value="@currentESteps" />
+    <span>steps/mm</span>
+    <span class="btn" @onclick="OnLoadESteps">Load</span>
+</div>
+
+<div>
+    <span>Corrected E-Steps:</span>
+    <input readonly type="number" class="input" value="@NewESteps" />
+    <span>steps/mm</span>
+    <span class="btn" @onclick="OnUploadESteps">Upload</span>
+</div>
+
+@code {
+    [Inject]
+    public required IPrinterManager PrinterManager { get; set; }
+
+    private float expectedFlow = 100;
+    private float actualFlow = 100;
+    private float currentESteps = 200;
+
+    private float NewESteps => currentESteps * (expectedFlow / actualFlow);
+
+    private void OnLoadESteps()
+    {
+        
+    }
+
+    private void OnUploadESteps()
+    {
+
+    }
+}
