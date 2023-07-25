@@ -42,11 +42,17 @@ public class Marlin1xxPrinterManager : IPrinterManager, IDisposable
 
     private void OnMessageReceived(string message)
     {
-        var response = GCodeParser.Parse(message, Marlin1xxTemplate.ResponseTemplates);
-
-        if (response != null)
+        try
         {
-            OnMessage?.Invoke(response);
+            var response = GCodeParser.Parse(message, Marlin1xxTemplate.ResponseTemplates);
+
+            if (response != null)
+            {
+                OnMessage?.Invoke(response);
+            }
+        } catch (Exception e)
+        {
+
         }
     }
 }

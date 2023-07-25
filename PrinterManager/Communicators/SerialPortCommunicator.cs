@@ -10,12 +10,21 @@ public class SerialPortCommunicator : ICommunicator, IDisposable
 {
     private SerialPort port = new SerialPort();
     private Task? listenerTask;
+    private bool running = true;
+
+    public SerialPortCommunicator()
+    {
+        listenerTask = Listener();
+    }
 
     /// <inheritdoc />
     public event Action<string>? OnMessage;
 
     /// <inheritdoc />
     public event Action? OnConnected;
+
+    /// <inheritdoc />
+    public event Action? OnConnectionChanged;
 
     /// <inheritdoc />
     public bool IsOpen => port.IsOpen;
@@ -67,9 +76,9 @@ public class SerialPortCommunicator : ICommunicator, IDisposable
         port.PortName = portName;
         port.BaudRate = 115200;
         port.Open();
-        listenerTask = Listener();
 
         OnConnected?.Invoke();
+        OnConnectionChanged?.Invoke();
     }
 
     /// <summary>
@@ -86,30 +95,35 @@ public class SerialPortCommunicator : ICommunicator, IDisposable
     /// </summary>
     public void Dispose()
     {
+        running = false;
         port.Dispose();
     }
 
     private async Task Listener()
     {
-        while (port.IsOpen)
+        StringBuilder buffer = new StringBuilder();
+
+        while (running)
         {
-            StringBuilder buffer = new StringBuilder();
-            try
+            if (port.IsOpen)
             {
-                var line = await Task.Run(port.ReadLine);
-                if (line.StartsWith("ok"))
+                try
                 {
-                    buffer.Append(line);
-                    OnMessage?.Invoke(buffer.ToString());
-                    buffer.Clear();
+                    while (port.BytesToRead > 0)
+                    {
+                        var msg = port.ReadExisting();
+                        OnMessage?.Invoke(msg);
+                    }
+
+                    await Task.Delay(50);
                 }
-                else
+                catch (Exception e)
                 {
-                    buffer.AppendLine(line);
                 }
             }
-            catch (Exception e)
+            else
             {
+                await Task.Delay(100);
             }
         }
     }

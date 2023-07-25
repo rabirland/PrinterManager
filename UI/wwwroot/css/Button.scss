@@ -15,4 +15,10 @@
     &:active {
         background-color: $color-active;
     }
+
+    &.disabled {
+        pointer-events: none;
+        border-color: $color-disabled;
+        pointer-events: initial;
+    }
 }

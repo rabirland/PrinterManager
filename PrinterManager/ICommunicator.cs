@@ -16,6 +16,11 @@ public interface ICommunicator
     event Action<string>? OnMessage;
 
     /// <summary>
+    /// Fired when the state of the connection changes.
+    /// </summary>
+    public event Action? OnConnectionChanged;
+
+    /// <summary>
     /// Fired when a connection is established.
     /// </summary>
     event Action? OnConnected;
