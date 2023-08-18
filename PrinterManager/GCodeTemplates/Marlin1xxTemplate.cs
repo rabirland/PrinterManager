@@ -15,7 +15,7 @@ public static class Marlin1xxTemplate
             .WithParameter(c => c.TargetYPos, "Y")
             .WithParameter(c => c.TargetZPos, "Z")
 
-        .AddCommand<RapidMovement>("G1")
+        .AddCommand<LinearMovement>("G1")
             .WithParameter(c => c.TargetExtruderPosition, "E")
             .WithParameter(c => c.FeedRate, "F")
             .WithParameter(c => c.LaserPower, "S")
@@ -39,6 +39,12 @@ public static class Marlin1xxTemplate
 
         .AddCommand<SetRelativeMode>("G91")
 
+        .AddCommand<SetPosition>("G92")
+            .WithParameter(c => c.X, "X")
+            .WithParameter(c => c.Y, "Y")
+            .WithParameter(c => c.Z, "Z")
+            .WithParameter(c => c.E, "E")
+
         .AddCommand<SetAxisStepperStepsPerMm>("M92")
             .WithParameter(c => c.AxisX, "X")
             .WithParameter(c => c.AxisY, "Y")
@@ -46,7 +52,7 @@ public static class Marlin1xxTemplate
             .WithParameter(c => c.AxisE, "E")
             .WithParameter(c => c.TargetExtruder, "T")
 
-        .AddCommand<Temperature>("M105")
+        .AddCommand<GetTemperature>("M105")
             .WithParameter(c => c.IncludeRedundantSensor, "R")
             .WithParameter(c => c.HotendIndex, "T")
 

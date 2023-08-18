@@ -17,4 +17,10 @@
     <ProjectReference Include="..\PrinterManager\PrinterManager.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="Shared\MotorCurrentCalculator.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+  </ItemGroup>
+
 </Project>

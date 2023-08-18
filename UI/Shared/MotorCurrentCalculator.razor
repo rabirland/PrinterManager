@@ -1,0 +1,44 @@
+﻿<div>
+    <span>Function:</span>
+    <select class="input" @onchange="c => function = (Function)c.Value">
+        @foreach (var value in Enum.GetValues<Function>())
+        {
+            <option selected="@(value == function)">@value</option>
+        }
+    </select>
+</div>
+
+<div>
+    <span>Sense resistor:</span>
+    <input type="number" class="input" @bind-value="senseResistor" />
+    <span>Ω</span>
+</div>
+
+<div>
+    <span>Reference Voltage:</span>
+    <input type="number" class="input" @bind-value="refVoltage" />
+    <span>V</span>
+</div>
+
+<div>
+    <span>Motor RMS Current:</span>
+    <input type="number" class="input" readonly value="@MotorRmsCurrent" />
+    <span>A</span>
+</div>
+
+@code {
+    private float senseResistor = 0.150f; /* Creality mainboard default resistor 150mΩ */
+    private float refVoltage = 1;
+    private Function function = Function.TMC2225;
+
+    private float MotorRmsCurrent => function switch
+    {
+        Function.TMC2225 => (0.325f / (senseResistor + 0.030f)) * (1 / MathF.Sqrt(2)) * (refVoltage / 2.5f),
+        _ => 0,
+    };
+
+    enum Function
+    {
+        TMC2225,
+    }
+}

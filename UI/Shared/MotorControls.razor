@@ -1,6 +1,7 @@
 ﻿@using PrinterManager;
+@using PrinterManager.Requests;
 
-<table class="maintable">
+<table class="maintable space-bot-l">
     <tr>
         <td></td>
         <td>▲</td>
@@ -20,7 +21,34 @@
     </tr>
 </table>
 
+<div class="panel">
+    <span class="title">Feed</span>
+    
+    <div>
+        <span>Length</span>
+        <input @bind-value="feedDistance" type="number" class="input" />
+    </div>
+
+    <div>
+        <span>Feed Rate</span>
+        <input @bind-value="feedRate" type="number" class="input" />
+    </div>
+
+    <div>
+        <span class="btn" @onclick="OnClickFeed">Feed</span>
+    </div>
+</div>
+
 @code {
+    private float feedDistance = 100;
+    private float feedRate = 100;
+
     [Inject]
     public required IPrinterManager PrinterManager { get; set; }
+
+    private void OnClickFeed()
+    {
+        PrinterManager.SendCommand(new SetPosition(E: 0));
+        PrinterManager.SendCommand(new LinearMovement(TargetExtruderPosition: feedDistance, FeedRate: feedRate));
+    }
 }
