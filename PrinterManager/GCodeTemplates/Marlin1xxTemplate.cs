@@ -85,6 +85,8 @@ public static class Marlin1xxTemplate
 
     public readonly static GCodeResponseTemplate[] ResponseTemplates = new[]
     {
+        GCodeResponseTemplate.Create<OkResponse>("OK"),
+
         GCodeResponseTemplate.Create<TemperatureStateResponse>("T:(?<HotendCurrent>\\d+(.\\d*)?)\\s*/(?<HotendTarget>\\d+(.\\d*)?)\\s*B:(?<BedCurrent>\\d+(.\\d*)?)\\s*/(?<BedTarget>\\d+(.\\d*)?)"),
     };
 }

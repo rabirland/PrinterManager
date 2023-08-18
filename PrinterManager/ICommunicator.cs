@@ -29,5 +29,5 @@ public interface ICommunicator
     /// Sends a command to the printer.
     /// </summary>
     /// <param name="command">The command to send.</param>
-    void Send(string command);
+    void Send(Span<byte> command);
 }

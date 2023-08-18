@@ -44,15 +44,14 @@ public class SerialPortCommunicator : ICommunicator, IDisposable
     }
 
     /// <inheritdoc />
-    public void Send(string command)
+    public void Send(Span<byte> command)
     {
         if (port == null)
         {
             throw new Exception("Port not opened");
         }
 
-        //port.WriteLine(command);
-        port.Write($"{command}\r\n");
+        port.Write($"{Encoding.ASCII.GetString(command)}\r\n");
     }
 
     /// <summary>

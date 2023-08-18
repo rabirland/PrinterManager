@@ -1,5 +1,10 @@
 ﻿namespace PrinterManager.Responses;
 
+/// <summary>
+/// An empty response, just an "ok" from the printer
+/// </summary>
+public readonly record struct OkResponse() : IPrinterResponse;
+
 public readonly record struct TemperatureStateResponse(float HotendCurrent, float HotendTarget, float BedCurrent, float BedTarget) : IPrinterResponse;
 public readonly record struct Settings(
     DistanceUnits unit,
