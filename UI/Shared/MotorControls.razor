@@ -1,5 +1,6 @@
 ﻿@using PrinterManager;
 @using PrinterManager.Requests;
+@using PrinterManager.Responses;
 
 <table class="maintable space-bot-l">
     <tr>
@@ -44,11 +45,11 @@
     private float feedRate = 100;
 
     [Inject]
-    public required IPrinterManager PrinterManager { get; set; }
+    public required IPrinterClient PrinterClient { get; set; }
 
     private void OnClickFeed()
     {
-        PrinterManager.SendCommand(new SetPosition(E: 0));
-        PrinterManager.SendCommand(new LinearMovement(TargetExtruderPosition: feedDistance, FeedRate: feedRate));
+        PrinterClient.SendWaitResponse<OkResponse>(new SetPosition(E: 0));
+        PrinterClient.SendWaitResponse<OkResponse>(new LinearMovement(TargetExtruderPosition: feedDistance, FeedRate: feedRate));
     }
 }

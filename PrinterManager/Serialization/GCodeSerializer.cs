@@ -1,6 +1,5 @@
 ﻿using PrinterManager.Requests;
 using PrinterManager.Responses;
-using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -35,7 +34,7 @@ public static class GCodeSerializer
             var property = request.GetType().GetProperty(param.Name, BindingFlags.Public | BindingFlags.Instance);
             if (property == null)
             {
-                throw new Exception($"Invalid GCode template, the property {param.Name} is not found on type {typeof(T).Name}");
+                throw new Exception($"Invalid GCode template, the property {param.Name} is not found on type {request.GetType().Name}");
             }
 
             var propertyValue = property.GetValue(request);
@@ -73,6 +72,21 @@ public static class GCodeSerializer
 
         var ret = DeserializeIntoObject(typeof(T), match, out var result);
         obj = (T)result;
+        return ret;
+    }
+
+    public static bool TryDeserialize(string response, GCodeResponseTemplate template, out object obj)
+    {
+        obj = default;
+        var match = template.Regex.Match(response);
+
+        if (match.Success == false)
+        {
+            return false;
+        }
+
+        var ret = DeserializeIntoObject(template.TargetType, match, out var result);
+        obj = result;
         return ret;
     }
 
