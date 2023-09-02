@@ -2,11 +2,11 @@
 
 @implements IDisposable
 
-<span class="btn @PrinterManager.Communicator.IsOpen.If(null, "disabled")" @onclick="OnClick">@ChildContent</span>
+<span class="btn @PrinterClient.Communicator.IsOpen.If(null, "disabled")" @onclick="OnClick">@ChildContent</span>
 
 @code {
     [Inject]
-    public required IPrinterManager PrinterManager { get; set; }
+    public required IPrinterClient PrinterClient { get; set; }
 
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
@@ -16,12 +16,12 @@
 
     public void Dispose()
     {
-        PrinterManager.Communicator.OnConnectionChanged -= OnConnectionChanged;
+        PrinterClient.Communicator.OnConnectionChanged -= OnConnectionChanged;
     }
 
     protected override void OnInitialized()
     {
-        PrinterManager.Communicator.OnConnectionChanged += OnConnectionChanged;
+        PrinterClient.Communicator.OnConnectionChanged += OnConnectionChanged;
     }
 
     private void OnConnectionChanged()

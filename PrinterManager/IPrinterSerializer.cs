@@ -18,7 +18,6 @@ public interface IPrinterSerializer
     /// Attempts to deserialize the printer's response into the first matching template.
     /// </summary>
     /// <param name="response">The response of the printer.</param>
-    /// <param name="obj">The result object.</param>
-    /// <returns><see langword="true"/> if the response could be deserialized into a <see cref="IPrinterResponse"/> otherwise <see langword="false"/>.</returns>
-    bool TryDeserialize(Span<byte> response, out IPrinterResponse obj);
+    /// <returns>The result.</returns>
+    SerializeResult TryDeserialize(Span<byte> response);
 }

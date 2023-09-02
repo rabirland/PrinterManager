@@ -1,4 +1,7 @@
 ﻿using PrinterManager.Responses;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace PrinterManager.Clients;
@@ -6,43 +9,62 @@ namespace PrinterManager.Clients;
 /// <summary>
 /// A <see cref="IPrinterClient"/> that uses an <see cref="ICommunicator"/>.
 /// </summary>
-public class CommunicatorPrinterClient : IPrinterClient
+public class CommunicatorPrinterClient : IPrinterClient, IDisposable
 {
-    private readonly ICommunicator communicator;
     private readonly IPrinterSerializer commandSerializer;
-    private readonly int timeout;
+    private readonly Subject<IPrinterResponse> parsedResponses = new();
+    private readonly Subject<byte[]> unknownResponses = new();
+
+    private bool isRunning = false;
 
     public CommunicatorPrinterClient(
         ICommunicator communicator,
-        IPrinterSerializer commandSerializer,
-        int timeout = 10000)
+        IPrinterSerializer commandSerializer)
     {
-        this.communicator = communicator;
+        this.Communicator = communicator;
         this.commandSerializer = commandSerializer;
-        this.timeout = timeout;
+
+        OnResponse = parsedResponses.AsObservable();
+        UnknownResponse = unknownResponses.AsObservable();
+
+        isRunning = true;
+        Task.Factory.StartNew(BackgroundWorker, TaskCreationOptions.LongRunning);
     }
 
-    /// <inheritdoc/>.
+    public void Dispose()
+    {
+        isRunning = false;
+    }
+
+    /// <inheritdoc/>
+    public ICommunicator Communicator { get; }
+
+    public IObservable<IPrinterResponse> OnResponse { get; }
+
+    public IObservable<byte[]> UnknownResponse { get; }
+
+    /// <inheritdoc/>
+    public void Send(object request)
+    {
+        var data = commandSerializer.Serialize(request);
+        Communicator.Send(data);
+    }
+
+    /// <inheritdoc/>
+    public void SendOk(object request)
+    {
+        SendWaitResponse<OkResponse>(request);
+    }
+
+    /// <inheritdoc/>
     public TResponse SendWaitResponse<TResponse>(object request)
         where TResponse : IPrinterResponse, new()
     {
-        var data = commandSerializer.Serialize(request);
-
         var listenTask = AwaitResponse<TResponse>();
-        var timeoutTask = Task.Delay(timeout);
 
-        communicator.Send(data);
+        Send(request);
 
-        var resultIndex = Task.WaitAny(listenTask, timeoutTask);
-
-        if (resultIndex == 1) // Index of timeout task
-        {
-            throw new Exception("Timeout");
-        }
-        else
-        {
-            return listenTask.Result;
-        }
+        return listenTask.Result;
     }
 
     /// <summary>
@@ -56,7 +78,7 @@ public class CommunicatorPrinterClient : IPrinterClient
         string buffer = string.Empty;
         Action<string> listener = (string msg) => buffer += msg;
 
-        communicator.OnMessage += listener;
+        Communicator.OnInput += listener;
         try
         {
             bool success = false;
@@ -78,7 +100,35 @@ public class CommunicatorPrinterClient : IPrinterClient
         }
         finally
         {
-            communicator.OnMessage -= listener;
+            Communicator.OnInput -= listener;
+        }
+    }
+
+    private void BackgroundWorker()
+    {
+        List<byte> buffer = new List<byte>();
+
+        while (isRunning)
+        {
+            var available = Communicator.Read();
+            buffer.AddRange(available);
+        }
+
+        var serializeResult = commandSerializer.TryDeserialize(buffer.ToArray()); // TODO: Optimize to not need ToArray()
+
+        buffer.RemoveRange(0, serializeResult.ByteCount);
+
+        if (serializeResult.Success)
+        {
+            parsedResponses.OnNext(serializeResult.Response);
+        }
+        else if (serializeResult.Response is SerializeResult.UnknownResponse ur)
+        {
+            unknownResponses.OnNext(ur.data);
+        }
+        else
+        {
+            // TODO: Figure out what to do
         }
     }
 }

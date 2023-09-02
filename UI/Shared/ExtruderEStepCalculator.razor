@@ -27,7 +27,7 @@
 
 @code {
     [Inject]
-    public required IPrinterManager PrinterManager { get; set; }
+    public required IPrinterClient PrinterManager { get; set; }
 
     private float expectedFlow = 100;
     private float actualFlow = 100;

@@ -14,28 +14,28 @@
     private float BedTarget = 0;
 
     [Inject]
-    public IPrinterManager? PrinterManager { get; set; }
+    public IPrinterClient? PrinterClient { get; set; }
 
     public void Dispose()
     {
-        if (PrinterManager == null)
+        if (PrinterClient == null)
         {
             throw new Exception("No printer manager is provided");
         }
 
-        PrinterManager.OnMessage -= OnMessage;
-        PrinterManager.Communicator.OnConnected -= TryStartMonitoringTemperatures;
+        PrinterClient.OnMessage -= OnMessage;
+        PrinterClient.Communicator.OnConnected -= TryStartMonitoringTemperatures;
     }
 
     protected override void OnInitialized()
     {
-        if (PrinterManager == null)
+        if (PrinterClient == null)
         {
             throw new Exception("No printer manager is provided");
         }
 
-        PrinterManager.OnMessage += OnMessage;
-        PrinterManager.Communicator.OnConnected += TryStartMonitoringTemperatures;
+        PrinterClient.OnMessage += OnMessage;
+        PrinterClient.Communicator.OnConnected += TryStartMonitoringTemperatures;
 
         TryStartMonitoringTemperatures();
     }
@@ -54,9 +54,9 @@
 
     private void TryStartMonitoringTemperatures()
     {
-        if (PrinterManager?.Communicator.IsOpen == true)
+        if (PrinterClient?.Communicator.IsOpen == true)
         {
-            PrinterManager.SendCommand(new AutoReportTemperatures(1));
+            PrinterClient.SendCommand(new AutoReportTemperatures(1));
         }
     }
 }

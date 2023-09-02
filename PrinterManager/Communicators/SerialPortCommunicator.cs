@@ -6,19 +6,9 @@ namespace PrinterManager.Communicators;
 /// <summary>
 /// An <see cref="ICommunicator"/> that uses a serial port.
 /// </summary>
-public class SerialPortCommunicator : ICommunicator, IDisposable
+public class SerialPortCommunicator : ICommunicator
 {
     private SerialPort port = new SerialPort();
-    private Task? listenerTask;
-    private bool running = true;
-
-    public SerialPortCommunicator()
-    {
-        listenerTask = Listener();
-    }
-
-    /// <inheritdoc />
-    public event Action<string>? OnMessage;
 
     /// <inheritdoc />
     public event Action? OnConnected;
@@ -86,44 +76,21 @@ public class SerialPortCommunicator : ICommunicator, IDisposable
     public void Close()
     {
         port.Close();
-        listenerTask = null;
     }
 
-    /// <summary>
-    /// Disposes the resources.
-    /// </summary>
-    public void Dispose()
+    public byte[] Read()
     {
-        running = false;
-        port.Dispose();
-    }
-
-    private async Task Listener()
-    {
-        StringBuilder buffer = new StringBuilder();
-
-        while (running)
+        if (port.IsOpen)
         {
-            if (port.IsOpen)
-            {
-                try
-                {
-                    while (port.BytesToRead > 0)
-                    {
-                        var msg = port.ReadExisting();
-                        OnMessage?.Invoke(msg);
-                    }
+            var msg = port.ReadExisting();
+            var data = Encoding.ASCII.GetBytes(msg);
 
-                    await Task.Delay(50);
-                }
-                catch (Exception e)
-                {
-                }
-            }
-            else
-            {
-                await Task.Delay(100);
-            }
+            return data;
         }
+        else
+        {
+            return Array.Empty<byte>();
+        }
+        
     }
 }

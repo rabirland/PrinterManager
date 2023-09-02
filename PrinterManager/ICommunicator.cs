@@ -11,11 +11,6 @@ public interface ICommunicator
     public bool IsOpen { get; }
 
     /// <summary>
-    /// Fired when a printer sends a message.
-    /// </summary>
-    event Action<string>? OnMessage;
-
-    /// <summary>
     /// Fired when the state of the connection changes.
     /// </summary>
     public event Action? OnConnectionChanged;
@@ -30,4 +25,10 @@ public interface ICommunicator
     /// </summary>
     /// <param name="command">The command to send.</param>
     void Send(Span<byte> command);
+
+    /// <summary>
+    /// Read all the available data from the communicator.
+    /// </summary>
+    /// <returns>The read data.</returns>
+    byte[] Read();
 }

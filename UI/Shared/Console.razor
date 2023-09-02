@@ -27,7 +27,7 @@
     {
         if (Communicator != null)
         {
-            Communicator.OnMessage -= MessageReceived;
+            Communicator.OnInput -= MessageReceived;
         }
     }
 
@@ -38,7 +38,7 @@
             throw new Exception("No communicator is provided");
         }
 
-        Communicator.OnMessage += MessageReceived;
+        Communicator.OnInput += MessageReceived;
     }
 
     private void MessageReceived(string message)
@@ -53,7 +53,7 @@
         {
             if (Communicator != null)
             {
-                Communicator.Send(inputBuffer);
+                Communicator.Send(Encoding.ASCII.GetBytes(inputBuffer));
             }
 
             AddOutput($">>>>> {inputBuffer}\n");
