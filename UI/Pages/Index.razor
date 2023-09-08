@@ -7,7 +7,7 @@
             <TabViewTab>
                 <PagerContent>Console</PagerContent>
                 <ChildContent>
-                    <Console Communicator="Communicator" />
+                    <Console />
                 </ChildContent>
             </TabViewTab>
 
@@ -39,8 +39,8 @@
             </TabViewTab>
 
             <TabViewTab>
-                <PagerContent>Page 4</PagerContent>
-                <ChildContent>Page 4 Content</ChildContent>
+                <PagerContent>GCode Stream</PagerContent>
+                <ChildContent><GCodeStreamer /></ChildContent>
             </TabViewTab>
         </TabView>
     </div>
@@ -53,6 +53,4 @@
 
 
 @code {
-    [Inject]
-    public PrinterManager.Communicators.SerialPortCommunicator? Communicator { get; set; }
 }

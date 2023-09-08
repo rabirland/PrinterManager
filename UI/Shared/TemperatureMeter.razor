@@ -8,6 +8,7 @@
 <span>🌡Bed: @BedCurrent.ToString("0.00") / @BedTarget.ToString("0.00")</span>
 
 @code {
+    private IDisposable? messageSubscribe;
     private float HotendCurrent = 0;
     private float HotendTarget = 0;
     private float BedCurrent = 0;
@@ -23,7 +24,7 @@
             throw new Exception("No printer manager is provided");
         }
 
-        PrinterClient.OnMessage -= OnMessage;
+        messageSubscribe?.Dispose();
         PrinterClient.Communicator.OnConnected -= TryStartMonitoringTemperatures;
     }
 
@@ -34,7 +35,7 @@
             throw new Exception("No printer manager is provided");
         }
 
-        PrinterClient.OnMessage += OnMessage;
+        messageSubscribe = PrinterClient.OnResponse.Subscribe(OnMessage);
         PrinterClient.Communicator.OnConnected += TryStartMonitoringTemperatures;
 
         TryStartMonitoringTemperatures();
@@ -56,7 +57,7 @@
     {
         if (PrinterClient?.Communicator.IsOpen == true)
         {
-            PrinterClient.SendCommand(new AutoReportTemperatures(1));
+            PrinterClient.Send(new AutoReportTemperatures(1));
         }
     }
 }

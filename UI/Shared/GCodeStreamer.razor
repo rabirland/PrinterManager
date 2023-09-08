@@ -1,0 +1,117 @@
+﻿@using Microsoft.AspNetCore.Components.Forms
+@using PrinterManager;
+@using System.Text;
+@using System.Reactive.Linq;
+
+@implements IDisposable
+
+<div class="frame">
+    <div class="output">
+        @foreach (var msg in outputBuffer)
+        {
+            <div class="log">@msg</div>
+        }
+        <div class="log">@outputBuilder.ToString()</div>
+    </div>
+
+    @if (running)
+    {
+        <span>Streaming...</span>
+    }
+    else
+    {
+        <InputFile OnChange="@LoadFiles" multiple />
+    }
+</div>
+
+@code {
+    private Queue<string> outputBuffer = new Queue<string>();
+    private string inputBuffer = string.Empty;
+    private StringBuilder outputBuilder = new StringBuilder();
+    private IDisposable? listenSubsribe;
+    private bool running = false;
+
+    [Inject]
+    public required IPrinterClient PrinterClient { get; set; }
+
+    public void Dispose()
+    {
+        listenSubsribe?.Dispose();
+        running = false;
+    }
+
+    protected override void OnInitialized()
+    {
+        listenSubsribe = PrinterClient.OnResponseData.Subscribe(MessageReceived);
+    }
+
+    private void MessageReceived(byte[] data)
+    {
+        var message = Encoding.ASCII.GetString(data);
+        AddOutput(message);
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void AddOutput(string message)
+    {
+        for (int i = 0; i < message.Length; i++)
+        {
+            if (message[i] == '\n')
+            {
+                outputBuffer.Enqueue(outputBuilder.ToString());
+                outputBuilder.Clear();
+            }
+            else
+            {
+                outputBuilder.Append(message[i]);
+            }
+        }
+
+        while (outputBuffer.Count > 50)
+        {
+            outputBuffer.TryDequeue(out _);
+        }
+    }
+
+    private void LoadFiles(InputFileChangeEventArgs e)
+    {
+        running = true;
+        var fileStream = e.File.OpenReadStream();
+        RunStream(fileStream); // Run in background
+    }
+
+    private async Task RunStream(Stream stream)
+    {
+        var reader = new StreamReader(stream);
+        var responseObservable = PrinterClient
+                .OnResponseData
+                .Select(d => Encoding.ASCII.GetString(d))
+                .TakeUntil(m => m.Contains('\r') || m.Contains('\n'));
+
+        while (reader.EndOfStream == false && running)
+        {
+            var line = reader.ReadLine();
+
+            if (line == null)
+            {
+                break;
+            }
+
+            // Skip Comments
+            if (line.StartsWith(';'))
+            {
+                AddOutput($"> {line}\n");
+                continue;
+            }
+
+            var firstResponseAwaitable = responseObservable.FirstAsync();
+            var data = Encoding.ASCII.GetBytes(line);
+            AddOutput($"> {line}\n");
+
+            PrinterClient.Communicator.Send(data);
+
+            var firstResponse = await firstResponseAwaitable;
+            AddOutput($"{firstResponse.Trim()}\n");
+        }
+    }
+}

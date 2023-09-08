@@ -19,42 +19,33 @@
     private Queue<string> outputBuffer = new Queue<string>();
     private string inputBuffer = string.Empty;
     private StringBuilder outputBuilder = new StringBuilder();
+    private IDisposable? listenSubsribe;
 
-    [Parameter]
-    public ICommunicator? Communicator { get; set; }
+    [Inject]
+    public required IPrinterClient PrinterClient { get; set; }
 
     public void Dispose()
     {
-        if (Communicator != null)
-        {
-            Communicator.OnInput -= MessageReceived;
-        }
+        listenSubsribe?.Dispose();
     }
 
     protected override void OnInitialized()
     {
-        if (Communicator == null)
-        {
-            throw new Exception("No communicator is provided");
-        }
-
-        Communicator.OnInput += MessageReceived;
+        listenSubsribe = PrinterClient.OnResponseData.Subscribe(MessageReceived);
     }
 
-    private void MessageReceived(string message)
+    private void MessageReceived(byte[] data)
     {
+        var message = Encoding.ASCII.GetString(data);
         AddOutput(message);
-        StateHasChanged();
+        InvokeAsync(StateHasChanged);
     }
 
     private void OnInputKeypress(KeyboardEventArgs args)
     {
         if (args.Key == "Enter")
         {
-            if (Communicator != null)
-            {
-                Communicator.Send(Encoding.ASCII.GetBytes(inputBuffer));
-            }
+            PrinterClient.Communicator.Send(Encoding.ASCII.GetBytes(inputBuffer));
 
             AddOutput($">>>>> {inputBuffer}\n");
             inputBuffer = string.Empty;
