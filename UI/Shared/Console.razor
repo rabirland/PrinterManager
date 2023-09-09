@@ -1,5 +1,6 @@
 ﻿@using PrinterManager;
 @using System.Text;
+@using System.Collections.Concurrent;
 
 @implements IDisposable
 
@@ -16,7 +17,7 @@
 </div>
 
 @code {
-    private Queue<string> outputBuffer = new Queue<string>();
+    private ConcurrentQueue<string> outputBuffer = new();
     private string inputBuffer = string.Empty;
     private StringBuilder outputBuilder = new StringBuilder();
     private IDisposable? listenSubsribe;

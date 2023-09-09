@@ -1,5 +1,4 @@
 ﻿using PrinterManager.Requests;
-using PrinterManager.Responses;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -85,7 +84,15 @@ public static class GCodeSerializer
             return false;
         }
 
-        var ret = DeserializeIntoObject(template.TargetType, match, out var result);
+        var hasDefaultConstructor = template
+            .TargetType
+            .GetConstructors()
+            .Any(c => c.GetParameters().Length == 0);
+
+        var ret = hasDefaultConstructor
+            ? DeserializeIntoObject(template.TargetType, match, out var result)
+            : DeserializeByConstructor(template.TargetType, match, out result);
+
         obj = result;
         return ret;
     }
@@ -116,69 +123,96 @@ public static class GCodeSerializer
                 continue;
             }
 
-            object value = 0;
-
-            if (property.PropertyType == typeof(string))
-            {
-                value = group.Value;
-            }
-            else if (property.PropertyType == typeof(byte))
-            {
-                value = byte.Parse(group.Value);
-            }
-            else if (property.PropertyType == typeof(sbyte))
-            {
-                value = sbyte.Parse(group.Value);
-            }
-            else if (property.PropertyType == typeof(short))
-            {
-                value = short.Parse(group.Value);
-            }
-            else if (property.PropertyType == typeof(ushort))
-            {
-                value = ushort.Parse(group.Value);
-            }
-            else if (property.PropertyType == typeof(int))
-            {
-                value = int.Parse(group.Value);
-            }
-            else if (property.PropertyType == typeof(uint))
-            {
-                value = uint.Parse(group.Value);
-            }
-            else if (property.PropertyType == typeof(long))
-            {
-                value = long.Parse(group.Value);
-            }
-            else if (property.PropertyType == typeof(ulong))
-            {
-                value = ulong.Parse(group.Value);
-            }
-            else if (property.PropertyType == typeof(float))
-            {
-                value = float.Parse(group.Value);
-            }
-            else if (property.PropertyType == typeof(double))
-            {
-                value = double.Parse(group.Value);
-            }
-            else if (property.PropertyType == typeof(bool))
-            {
-                value = string.IsNullOrEmpty(group.Value) == false;
-            }
-            else if (property.PropertyType.IsAssignableTo(typeof(IPrinterResponse)))
-            {
-                value = DeserializeIntoObject(property.PropertyType, match, out value);
-            }
-            else
-            {
-                throw new Exception($"Can not deserialize into property of type '{property.PropertyType.Name}'");
-            }
+            object value = ParseType(group.Value, property.PropertyType);
 
             property.SetValue(ret, value);
         }
 
         result = ret;
         return true;
+    }
+
+    private static bool DeserializeByConstructor(Type targetType, Match match, out object result)
+    {
+        var constructor = targetType.GetConstructors(BindingFlags.Public | BindingFlags.Instance).Single();
+        var parameterValues = new List<object>();
+        var parameters = constructor.GetParameters();
+
+        foreach (var parameter in parameters)
+        {
+            var group = match.Groups.FindGroup(parameter.Name ?? string.Empty);
+            if (group == null)
+            {
+                throw new Exception($"Can not find value for parameter '{parameter.Name}' in the template");
+            }
+
+            var stringValue = group.Value;
+            var parameterValue = ParseType(stringValue, parameter.ParameterType);
+
+            parameterValues.Add(parameterValue);
+        }
+
+        result = constructor.Invoke(parameterValues.ToArray());
+        return true;
+    }
+
+    private static object ParseType(string sourceValue, Type targetType)
+    {
+        object value = 0;
+
+        if (targetType == typeof(string))
+        {
+            value = sourceValue;
+        }
+        else if (targetType == typeof(byte))
+        {
+            value = byte.Parse(sourceValue);
+        }
+        else if (targetType == typeof(sbyte))
+        {
+            value = sbyte.Parse(sourceValue);
+        }
+        else if (targetType == typeof(short))
+        {
+            value = short.Parse(sourceValue);
+        }
+        else if (targetType == typeof(ushort))
+        {
+            value = ushort.Parse(sourceValue);
+        }
+        else if (targetType == typeof(int))
+        {
+            value = int.Parse(sourceValue);
+        }
+        else if (targetType == typeof(uint))
+        {
+            value = uint.Parse(sourceValue);
+        }
+        else if (targetType == typeof(long))
+        {
+            value = long.Parse(sourceValue);
+        }
+        else if (targetType == typeof(ulong))
+        {
+            value = ulong.Parse(sourceValue);
+        }
+        else if (targetType == typeof(float))
+        {
+            value = float.Parse(sourceValue);
+        }
+        else if (targetType == typeof(double))
+        {
+            value = double.Parse(sourceValue);
+        }
+        else if (targetType == typeof(bool))
+        {
+            value = string.IsNullOrEmpty(sourceValue) == false;
+        }
+        else
+        {
+            throw new Exception($"Can not deserialize into type '{targetType.Name}'");
+        }
+
+        return value;
     }
 }

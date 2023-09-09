@@ -39,6 +39,7 @@ partial class Form1
         this.blazorWebView1.Size = new Size(800, 450);
         this.blazorWebView1.TabIndex = 0;
         this.blazorWebView1.Text = "blazorWebView1";
+        this.blazorWebView1.Click += this.blazorWebView1_Click;
         // 
         // Form1
         // 
@@ -48,6 +49,7 @@ partial class Form1
         this.Controls.Add(this.blazorWebView1);
         this.Name = "Form1";
         this.Text = "Form1";
+        this.Load += this.Form1_Load;
         this.ResumeLayout(false);
     }
 
