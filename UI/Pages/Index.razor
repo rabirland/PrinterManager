@@ -3,44 +3,46 @@
 @using UI.Components
 
 <div class="page scifi dark">
-    <div class="content">
-        <Tabs>
-            <Tab>
-                <Header>Console</Header>
-                <ChildContent>
-                    <Console />
-                </ChildContent>
-            </Tab>
-            <Tab>
-                <Header>Calibration</Header>
-                <ChildContent>
-                    <div class="panel">
-                        <span class="title">Flow multiplier calculator</span>
-                        <FlowMultiplierCalculator />
-                    </div>
+    <div class="layout-v">
+        <div class="content fill">
+            <Tabs>
+                <Tab>
+                    <Header>Console</Header>
+                    <ChildContent>
+                        <Console />
+                    </ChildContent>
+                </Tab>
+                <Tab>
+                    <Header>Calibration</Header>
+                    <ChildContent>
+                        <div class="panel">
+                            <span class="title">Flow multiplier calculator</span>
+                            <FlowMultiplierCalculator />
+                        </div>
 
-                    <div class="panel">
-                        <span class="title">Extruder e-step calculator</span>
-                        <ExtruderEStepCalculator />
-                    </div>
+                        <div class="panel">
+                            <span class="title">Extruder e-step calculator</span>
+                            <ExtruderEStepCalculator />
+                        </div>
 
-                    <div class="panel">
-                        <span class="title">Motor Current Calculator</span>
-                        <MotorCurrentCalculator />
-                    </div>
-                </ChildContent>
-            </Tab>
-            <Tab>
-                <Header>GCode Stream</Header>
-                <ChildContent>
-                    <GCodeStreamer />
-                </ChildContent>
-            </Tab>
-        </Tabs>
-    </div>
-    <div class="statusbar">
-        <SerialPortStatus />
-        <TemperatureMeter />
+                        <div class="panel">
+                            <span class="title">Motor Current Calculator</span>
+                            <MotorCurrentCalculator />
+                        </div>
+                    </ChildContent>
+                </Tab>
+                <Tab>
+                    <Header>GCode Stream</Header>
+                    <ChildContent>
+                        <GCodeStreamer />
+                    </ChildContent>
+                </Tab>
+            </Tabs>
+        </div>
+        <div class="statusbar min">
+            <SerialPortStatus />
+            <TemperatureMeter />
+        </div>
     </div>
 </div>
 
