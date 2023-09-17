@@ -49,7 +49,7 @@
             HotendTarget = report.HotendTarget;
             BedCurrent = report.BedCurrent;
             BedTarget = report.BedTarget;
-            StateHasChanged();
+            InvokeAsync(StateHasChanged);
         }
     }
 

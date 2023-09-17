@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BlazorScifi\BlazorSciFi.csproj" />
     <ProjectReference Include="..\PrinterManager\PrinterManager.csproj" />
   </ItemGroup>
 

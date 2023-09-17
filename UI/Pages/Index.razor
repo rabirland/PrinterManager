@@ -1,25 +1,18 @@
+@using BlazorScifi
 @using PrinterManager;
 @using UI.Components
 
-<div class="frame">
+<div class="page scifi dark">
     <div class="content">
-        <TabView>
-            <TabViewTab>
-                <PagerContent>Console</PagerContent>
+        <Tabs>
+            <Tab>
+                <Header>Console</Header>
                 <ChildContent>
                     <Console />
                 </ChildContent>
-            </TabViewTab>
-
-            <TabViewTab>
-                <PagerContent>Motor Controls</PagerContent>
-                <ChildContent>
-                    <MotorControls />
-                    </ChildContent>
-            </TabViewTab>
-
-            <TabViewTab>
-                <PagerContent>Calibration</PagerContent>
+            </Tab>
+            <Tab>
+                <Header>Calibration</Header>
                 <ChildContent>
                     <div class="panel space-bot-l">
                         <span class="title">Flow multiplier calculator</span>
@@ -36,13 +29,14 @@
                         <MotorCurrentCalculator />
                     </div>
                 </ChildContent>
-            </TabViewTab>
-
-            <TabViewTab>
-                <PagerContent>GCode Stream</PagerContent>
-                <ChildContent><GCodeStreamer /></ChildContent>
-            </TabViewTab>
-        </TabView>
+            </Tab>
+            <Tab>
+                <Header>GCode Stream</Header>
+                <ChildContent>
+                    <GCodeStreamer />
+                </ChildContent>
+            </Tab>
+        </Tabs>
     </div>
     <div class="statusbar">
         <SerialPortStatus />

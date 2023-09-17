@@ -38,6 +38,9 @@
                 <InputFile OnChange="@LoadFiles" multiple />
             </div>
         }
+        else
+        {
+        }
     </div>
 </div>
 
@@ -46,6 +49,7 @@
     private string inputBuffer = string.Empty;
     private StringBuilder outputBuilder = new StringBuilder();
     private bool running = false;
+    private Task? streamingTask;
 
     // Metrics
     private int layerCount = -1;
@@ -100,7 +104,21 @@
     {
         running = true;
         var fileStream = e.File.OpenReadStream(maxAllowedSize: e.File.Size);
-        RunStream(fileStream); // Run in background
+        streamingTask = RunStream(fileStream); // Run in background
+    }
+
+    private async Task Stop()
+    {
+        running = false;
+        if (streamingTask != null)
+        {
+            await streamingTask;   
+        }
+
+        outputBuffer.Clear();
+        inputBuffer = string.Empty;
+        streamingTask = null;
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task RunStream(Stream stream)
